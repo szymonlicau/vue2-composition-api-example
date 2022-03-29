@@ -6,7 +6,7 @@
 
     <transition>
       <div
-        v-if="apiFact"
+        v-if="!loading && factMessage"
         class="fact-randomizer__result"
       >
         <blockquote
@@ -27,43 +27,13 @@
 </template>
 
 <script>
-import { computed, ref, onMounted } from '@vue/composition-api';
-
-import { loadFact } from '@/api/catFacts';
+import { useCatFact } from '@/composables/catFact';
 
 export default {
   setup () {
-    const apiFact = ref(null);
-    const loading = ref(false);
-
-    const factMessage = computed(() => apiFact.value?.fact);
-
-    const loadNewFact = async () => {
-      if (loading.value) {
-        return;
-      }
-
-      loading.value = true;
-
-      apiFact.value = null;
-
-      const response = await loadFact();
-
-      // Force wait a second
-      const forcedDelay = 500;
-      await new Promise(resolve => setTimeout(resolve, forcedDelay));
-
-      apiFact.value = response.data;
-
-      loading.value = false;
-    };
-
-    onMounted(() => {
-      loadNewFact();
-    });
+    const { loading, factMessage, loadNewFact } = useCatFact();
 
     return {
-      apiFact,
       factMessage,
       loading,
       loadNewFact
